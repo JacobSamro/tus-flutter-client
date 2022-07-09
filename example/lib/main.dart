@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tus/tus.dart';
 
-final String endpointUrl = "http://127.0.0.1:8080/files";
+final String endpointUrl = "https://master.tus.io/files/";
 final String authorizationHeader = "Bearer JWT";
 
 void main() => runApp(MyApp());

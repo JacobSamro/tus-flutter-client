@@ -22,7 +22,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.tus.android.client.TusPreferencesURLStore;
 import io.tus.java.client.ProtocolException;
 import io.tus.java.client.TusClient;
@@ -51,13 +50,14 @@ public class TusPlugin implements FlutterPlugin, MethodCallHandler {
     // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
     // depending on the user's project. onAttachedToEngine or registerWith must both be defined
     // in the same class.
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-        TusPlugin tusPlugin = new TusPlugin();
-        tusPlugin.methodChannel = channel;
-        tusPlugin.sharedPreferences = registrar.activeContext().getSharedPreferences("tus", 0);
-        channel.setMethodCallHandler(tusPlugin);
-    }
+
+//    public static void registerWith(Registrar registrar) {
+//        final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
+//        TusPlugin tusPlugin = new TusPlugin();
+//        tusPlugin.methodChannel = channel;
+//        tusPlugin.sharedPreferences = registrar.activeContext().getSharedPreferences("tus", 0);
+//        channel.setMethodCallHandler(tusPlugin);
+//    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -106,6 +106,7 @@ public class TusPlugin implements FlutterPlugin, MethodCallHandler {
             }
 
             String fileUploadUrl = (String) arguments.get("fileUploadUrl");
+            assert fileUploadUrl != null;
             if (fileUploadUrl.isEmpty()) {
                 result.error("InvalidFileUploadUrlProvided", "file upload url is invalid.", "Provide a local path to the file.");
                 return;
