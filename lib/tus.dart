@@ -19,34 +19,35 @@ class Tus {
 
   // The endpoint url.
   final String endpointUrl;
-  OnProgressCallback onProgress;
-  OnCompleteCallback onComplete;
-  OnErrorCallback onError;
+  OnProgressCallback? onProgress;
+  OnCompleteCallback? onComplete;
+  OnErrorCallback? onError;
 
   // Flag to ensure that the tus client is initialized.
   bool isInitialized = false;
 
   // Headers for client-wide uploads.
-  Map<String, String> headers = Map<String, String>();
+  Map<String, String> headers;
 
   // Number of retries before giving up. Defaults to infinite retries.
   int retry = -1;
 
   // [iOS-only] Allows cellular access for uploads.
-  bool allowCellularAccess = true;
+  bool allowCellularAccess;
 
-  Tus(this.endpointUrl,
-      {this.onProgress,
-      this.onComplete,
-      this.onError,
-      this.headers,
-      this.allowCellularAccess}) {
-    assert(endpointUrl != null);
+  Tus(
+    this.endpointUrl, {
+    this.onProgress,
+    this.onComplete,
+    this.onError,
+    this.headers = const {},
+    this.allowCellularAccess = true,
+  }) {
     _channel.setMethodCallHandler(this.handler);
   }
 
   // Handles the method calls from the native side.
-  Future<void> handler(MethodCall call) {
+  Future<void> handler(MethodCall call) async{
     // Ensure that the endpointUrl provided from the MethodChannel is the same
     // as the flutter client.
     switch (call.method) {
@@ -55,7 +56,7 @@ class Tus {
       case "failureBlock":
         if (call.arguments["endpointUrl"] != endpointUrl) {
           // This method call is not meant for this client.
-          return null;
+          return;
         }
         break;
     }
@@ -64,18 +65,16 @@ class Tus {
     if (call.method == "progressBlock") {
       var bytesWritten = call.arguments["bytesWritten"];
       var bytesTotal = call.arguments["bytesTotal"];
-      if (onProgress != null) {
-        double progress = bytesWritten / bytesTotal;
-        onProgress(int.tryParse(bytesWritten), int.tryParse(bytesTotal),
-            progress, this);
-      }
+      double progress = bytesWritten / bytesTotal;
+      onProgress?.call(int.tryParse(bytesWritten) ?? 0,
+          int.tryParse(bytesTotal) ?? 0, progress, this);
     }
 
     // Trigger the onComplete callback if the callback is provided.
     if (call.method == "resultBlock") {
       var resultUrl = call.arguments["resultUrl"];
       if (onComplete != null) {
-        onComplete(resultUrl, this);
+        onComplete?.call(resultUrl, this);
       }
     }
 
@@ -83,7 +82,7 @@ class Tus {
     if (call.method == "failureBlock") {
       var error = call.arguments["error"] ?? "";
       if (onError != null) {
-        onError(error, this);
+        onError?.call(error, this);
       }
     }
   }
@@ -110,16 +109,13 @@ class Tus {
   // Optionally, you can provide [metadata] to enrich the file upload.
   // Note that filename is provided in the [metadata] upon upload.
   Future<dynamic> createUploadFromFile(String fileToUpload,
-      {Map<String, String> metadata}) async {
-    if(!isInitialized) {
+      {Map<String, String> metadata = const <String, String>{}}) async {
+    if (!isInitialized) {
       await initializeWithEndpoint();
     }
 
     // Ensures that metadata is not null by providing an empty map, if not
     // provided by the user.
-    if (metadata == null) {
-      metadata = Map<String, String>();
-    }
 
     try {
       var result = await _channel
@@ -131,7 +127,7 @@ class Tus {
         "metadata": metadata,
       });
 
-      if (result.containsKey("error")) {
+      if (result!.containsKey("error")) {
         throw Exception("${result["error"]} { ${result["reason"]}");
       }
 

@@ -1,7 +1,6 @@
 // Copyright 2020 Lionell Yip. All rights reserved.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,13 +13,18 @@ final String authorizationHeader = "Bearer JWT";
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
+
+  MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+
   String _platformVersion = 'Unknown';
-  Tus tusD;
+  late final Tus tusD;
+  late final ImagePicker imagePicker;
 
   double progressBar = 0;
   bool inProgress = false;
@@ -31,13 +35,13 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initPlatformState();
     progressBar = 0.0;
+    imagePicker = ImagePicker();
   }
 
-  File _image;
+  XFile? _image;
 
   Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
+    final image = await imagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
       _image = image;
     });
@@ -113,7 +117,7 @@ class _MyAppState extends State<MyApp> {
             Center(
               child: Text('Running on: $_platformVersion\n'),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("Choose a photo to upload!"),
               onPressed: () async {
                 await getImage();
@@ -121,8 +125,8 @@ class _MyAppState extends State<MyApp> {
                   inProgress = true;
                   progressBar = 0;
                 });
-                print(await tusD.createUploadFromFile(
-                  _image.path,
+                debugPrint(await tusD.createUploadFromFile(
+                  _image!.path,
                   metadata: <String, String>{
                     "test": "message",
                   },
