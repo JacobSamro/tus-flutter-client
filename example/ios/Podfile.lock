@@ -4,7 +4,7 @@ PODS:
     - Flutter
   - tus (0.0.1):
     - Flutter
-    - TUSKit
+    - TUSKit (= 1.4.2)
   - TUSKit (1.4.2)
 
 DEPENDENCIES:
@@ -27,7 +27,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
-  tus: d037955d65d5fb79171a8960f73ac76f2981664d
+  tus: 484f8fead79078470ea5f3feb8ce45525368472b
   TUSKit: 4bcc2fe13e1b4d6c3bfbaca57d64e64c1be31201
 
 PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
